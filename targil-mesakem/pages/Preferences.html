@@ -1,0 +1,248 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+   
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+    <script src="../Scripts/ajaxCalls.js"></script>
+
+    <title>Customer form</title>
+    <style>
+        .tab {
+            text-align: center;
+        }
+
+        input[type=submit] {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 16px 32px;
+            text-decoration: none;
+            margin: 4px 2px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        label.custom-control-label {
+            font-size: 15px;
+        }
+    </style>
+    <script>
+
+        $(document).ready(function () {
+
+            checkLogin();
+            $("#btn_prep").click(f1);
+            
+        });
+        function f1() {
+            arrHigh = [];
+            price_range = 0;
+            $('#pForm input:checked').each(function () {
+                arrHigh.push(this.name);
+            });
+
+            if ($("input[type='radio'].custom-control-input").is(':checked')) {
+                price_range = $("input[type='radio'].custom-control-input:checked").val();
+            }
+            compare();
+        }
+
+        function compare() {
+
+
+            ajaxCall("GET", "../api/Customers", "", getSuccess, getError);
+
+        }
+        function getSuccess(data) {
+            console.log(data);
+            var d = data;
+            changePre(d);
+        }
+
+
+        function getError(err) {
+            console.log(err);
+        }
+        function changePre(d) {
+            var l = JSON.parse(localStorage.getItem('user_without_pre'));
+            var l1 = JSON.parse(localStorage.getItem('user_with_pre'));
+            if (l1 == null) {
+                l1 = {
+                    Email: ""
+                }
+            }
+            let customer;
+            for (var i = 0; i < d.length; i++) {
+                
+                    if (l == d[i].Email || l1.Email == d[i].Email) {
+                        var id = d[i].Id;
+                        var email = d[i].Email;
+                        customer = {
+                            Email: email,
+                            Id: id
+                        }
+                    }
+                
+            }
+            customer = { ...customer, Price_range: price_range, Highlights: arrHigh };
+
+            console.log(JSON.stringify(customer));
+            ajaxCall("POST", "../api/Customers", JSON.stringify(customer), success, error);
+            localStorage.setItem("user_with_pre", JSON.stringify(customer));
+        }
+        function deleteSuccess(data) {
+            console.log(data);
+        }
+
+        function deleteError(err) {
+            alert(err.responseJSON);
+        }
+
+        function success(data) {
+            
+
+            swal({
+                title: "Added Successfuly!", text: "Moving to search page", icon:
+                    "success"
+            }).then(function () {
+                window.location.href = 'index.html';
+                localStorage.removeItem('user_without_pre');
+            }
+            );           
+        }
+
+        function error(err) {
+            alert(err.responseJSON);
+        }
+        function checkLogin() {
+            var l = JSON.parse(localStorage.getItem('user_without_pre'));
+            var l1 = JSON.parse(localStorage.getItem('user_with_pre'));
+            if (l != null || l1 != null) {
+                $('.sign-up').hide();
+                $('.login').hide();
+                $('.logout').show();
+            }
+            else {
+                $('.sign-up').show();
+                $('.login').show();
+                $('.logout').hide();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('user_without_pre');
+            localStorage.removeItem('user_with_pre');
+        }
+
+
+    </script>
+</head>
+<body>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Yummy</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="index.html">Search your restaurant </a></li>
+               
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="sign-up"><a href="customers.html"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                <li class="login"><a href="login.html"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                <li class="logout"><a href="" onclick="logout()"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="tab">
+        <a href="index.html" class="btn btn-primary">Go to Search!</a>
+    </div>
+
+    <div class="container">
+        <h1>Choose your preferences:</h1>
+        <form id="pForm">
+            <h2>Desirable facilities:</h2>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="customCheck1" name="Wifi">
+                <label class="custom-control-label" id="Check1" for="customCheck1">Wifi</label><br />
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="customCheck2" name="Credit Card" =>
+                <label class="custom-control-label" id="Check2" for="customCheck2">Credit Card</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="customCheck3" name="Serves Alcohol">
+                <label class="custom-control-label" id="Check3" for="customCheck3">Serves Alcohol</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="customCheck4" name="Vegetarian Friendly">
+                <label class="custom-control-label" id="Check4" for="customCheck4">Vegetarian Friendly</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="customCheck5" name="Lunch">
+                <label class="custom-control-label" id="Check5" for="customCheck5">Lunch</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="customCheck6" name="Dinner">
+                <label class="custom-control-label" id="Check6" for="customCheck6">Dinner</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="customCheck7" name="Breakfast">
+                <label class="custom-control-label" id="Check7" for="customCheck7">Breakfast</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="customCheck8" name="Desserts and Bakes">
+                <label class="custom-control-label" id="Check8" for="customCheck8">Desserts and Bakes</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="customCheck9" name="Takeaway Available">
+                <label class="custom-control-label" id="Check9" for="customCheck9">Takeaway Available</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="customCheck10" name="Outdoor Seating">
+                <label class="custom-control-label" id="Check10" for="customCheck10">Outdoor Seating</label>
+            </div>
+
+            <h2>
+                Choose your price range: [1-chip,5-expensive]
+            </h2>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="customRadioInline1" value="1" name="customRadioInline1" class="custom-control-input">
+                <label class="custom-control-label" id="Radio1" for="customRadioInline1">1</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="customRadioInline2" value="2" name="customRadioInline1" class="custom-control-input">
+                <label class="custom-control-label" id="Radio2" for="customRadioInline2">2</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="customRadioInline3" value="3" name="customRadioInline1" class="custom-control-input">
+                <label class="custom-control-label" id="Radio3" for="customRadioInline3">3</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="customRadioInline4" value="4" name="customRadioInline1" class="custom-control-input">
+                <label class="custom-control-label" id="Radio4" for="customRadioInline4">4</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="customRadioInline5" value="5" name="customRadioInline1" class="custom-control-input">
+                <label class="custom-control-label" id="Radio5" for="customRadioInline5">5</label>
+            </div>
+          
+            
+
+            <!--<input type="submit" id="btn_prep" onsubmit="f1();return false;" value="Submit Preferences" />-->
+            <button type="button" id="btn_prep">Save!</button>
+        </form>
+
+
+    </div>
+</body>
+</html>

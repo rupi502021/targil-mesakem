@@ -1,0 +1,2 @@
+C:\Users\ronda\Desktop\targil-mesakem\targil-mesakem\obj\Debug\targil-mesakem.csprojAssemblyReference.cache
+C:\Users\ronda\Desktop\targil-mesakem\targil-mesakem\obj\Debug\targil-mesakem.csproj.CoreCompileInputs.cache

@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <script src="../Scripts/jquery-3.4.1.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="../Scripts/ajaxCalls.js"></script>
+    <link href="../Content/StyleSheet.css" rel="stylesheet" />
+    <title>Favorites</title>
+    <style>
+
+        body {
+            text-align: center;
+        }
+
+        
+        img {
+            width: 100px;
+        }
+
+        .rest {
+            border: solid 2px;
+            width: 50%;
+            margin: 8px auto;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            render();
+            
+        });
+
+        
+            render = () => {
+                            
+                ajaxCall("GET", "../api/Businesses", "", getSuccess, getError);
+
+            }
+
+            function getSuccess(data) {
+                console.log(data);
+                var d = data;
+                renderBusinesses(d);
+            }
+
+
+        function getError(err) {
+                console.log(err);
+        }
+
+            renderBusinesses = (d) => {
+                
+                $("#ph1").html("");
+                let str = "";
+                for (var i = 0; i < d.length; i++) {
+                    
+                    str += "<div class='rest'>";
+                    
+                    str += "<span>Name: " + d[i].Name + "</span><br>";
+                    
+                    str += "<span>Id: " + d[i].Id + "</span><br>";
+                   
+                    str += "<img src='" + d[i].Photo_url + "'><br>";
+                    
+                    if (d[i].Rating != 0)
+                    str += "<span>Rating: " + d[i].Rating + "</span><br>";
+                   
+                    str += "<span>Category: " + d[i].Category + "</span><br>";
+                   
+                    str += "<span>Price range: " + d[i].Price_range + "</span><br>";
+                    
+                    str += "<span>Address: " + d[i].Address + "</span><br>";
+                    
+                    str += "<span>Phones: " + d[i].Phones + "</span><br>";
+                    str += "</div>";
+
+                }
+
+                $("#ph1").append(str)
+            }
+       
+
+    </script>
+</head>
+<body>
+    <div class="tab">
+        <a href="index.html" class="btn btn-primary">Go to peek more restaurants</a>
+    </div>
+    <h1>Favorites</h1>
+
+
+    <div id="ph1">
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,258 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="../Scripts/jquery-3.4.1.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="../Scripts/ajaxCallsWithKey.js"></script>
+
+    <style>
+        body, .form-group {
+            text-align: center;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #sel1 {
+            width: fit-content;
+            margin: auto;
+        }
+        .row{
+            text-align:center;
+        }
+        img {
+            width: 100px;
+        }
+
+        .rest {
+            border: solid 2px;
+            border-radius: 5px;
+            margin: 8px;
+            height: 350px;
+            padding: 15px;
+        }
+
+        .favBTN {
+            background-color: yellow;
+            margin: 5px auto
+        }
+        div#ph {
+            margin-left: 118px;
+        }
+    </style>
+    <title>Our Zomato</title>
+
+    <script>
+        $(document).ready(function () {
+            checkLogin();
+            $("#ph").html("");
+            $("#searchBTN").click(renderSearch);
+
+        });
+       
+        function checkLogin() {
+            var l = JSON.parse(localStorage.getItem('user_without_pre'));
+            var l1 = JSON.parse(localStorage.getItem('user_with_pre'));
+            if (l != null || l1 != null) {
+                $('.sign-up').hide();
+                $('.login').hide();
+                $('.logout').show();
+            }
+            else {
+                $('.sign-up').show();
+                $('.login').show();
+                $('.logout').hide();
+            }
+        }
+
+        renderSearch = () => {
+            console.log("in search");
+
+            _cusine = $("#sel1 option:selected").text();
+            if (_cusine == 'Select Cusine') {
+                swal({
+                    title: "Oh No!", text: "Please select a cusine", icon:
+                        "warning"
+                })
+            }
+            else
+            {
+                console.log(_cusine);
+                let api = "../api/Businesses/cusine/" + _cusine;
+                ajaxCall("GET", api, "", getSuccess, getError);
+            }
+        }
+
+        function getSuccess(data) {
+            console.log(data);
+            d = data;
+            if (localStorage.getItem('user_with_pre') == null) {
+                str = "We found " + d.length + " results for you arranged from high to low rating";
+                swal({
+                    title: "Yohoo!", text: str, icon:
+                        "success"
+                })
+                d.sort(function (a, b) {
+                    return b.Rating - a.Rating;
+                });
+                renderBusinesses(d);
+            }
+            else {                
+                var l1 = JSON.parse(localStorage.getItem('user_with_pre'));
+                let api = "../api/Businesses/pre/" + l1.Id + "/cusine/" + _cusine;
+                ajaxCall("GET", api, "", getSuccesspre, getErrorpre);
+            }
+            
+        }
+        function getSuccesspre(data) {
+           
+            dPre = data;
+            str = "We found results for you arranged from your preferences";
+            swal({
+                title: "Yohoo!", text: str, icon:
+                    "success"
+            })
+           
+            
+            for (var i = 0; i < d.length; i++) {
+                var exist = false;
+                for (var j = 0; j < dPre.length; j++) {
+                    if (d[i].Id == dPre[j].Id) {
+                        exist = true;
+                        break;
+                    }
+                }
+                if (exist != true) {
+                    dPre.push(d[i]);
+                }
+            }
+            
+
+            console.log(dPre);
+            renderBusinesses(dPre);
+        }
+
+        function getErrorpre(err) {
+            alert(err.responseJSON);
+        }
+        function getError(err) {
+            alert(err.responseJSON);
+        }
+
+        function checkclick(obj,url) {
+            window.location.href = url;
+        }
+
+        renderBusinesses = (d) => {  
+            $("#ph").html("");
+            let str = "";
+            for (var i = 0; i < d.length; i++) {
+                obj = d[i];
+                str += "<div class='row col-sm-4 col-lg-3' >"
+                str += "<div class='rest' id=" + obj.Id + " onclick = checkclick(this,'" + obj.Url+"') > ";
+                let _name = obj.Name;
+                str += "<h4>Name: " + _name + "</h4>";
+                let _id = obj.Id;
+                str += "<span><b>Id:</b> " + _id + "</span><br>";
+                let _photo_url = obj.Photo_url;
+                if (_photo_url == "") {
+                    _photo_url = "https://img.mako.co.il/2017/08/30/vmbnubvthbvznhbv_c.jpg";
+                }
+                str += "<img src='" + _photo_url + "'><br>";
+                let _rating = obj.Rating;
+                if (_rating != 0)
+                    str += "<span><b>Rating:</b> " + _rating + "</span><br>";
+                let _category = obj.Category;
+                str += "<span><b>Category:</b> " + _category + "</span><br>";
+                let _price_range = obj.Price_range;
+                str += "<span><b>Price range:</b> " + _price_range + "</span><br>";
+                let _address = obj.Address;
+                str += "<span><b>Address:</b> " + _address + "</span><br>";
+                let _phones = obj.Phones;
+                str += "<span><b>Phones:</b> " + _phones + "</span><br>";                            
+                str += "</div>";
+                str += "</div>";
+            }
+
+            $("#ph").append(str)
+        }
+ 
+        function checkls() {
+            if (localStorage.getItem('user_with_pre') == null && localStorage.getItem('user_without_pre') == null) {             
+                swal({
+                    title: "Wrong way!", text: "You need to sign up or login first!", icon:
+                        "error"
+                })
+            }
+            else {
+                window.location.href = "Preferences.html";
+            }
+        }
+        function logout() {
+            localStorage.removeItem('user_without_pre');
+            localStorage.removeItem('user_with_pre');
+        }
+       
+    </script>
+
+
+</head>
+<body>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Yummy</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="index.html">Search your restaurant </a></li>
+                <li><a  onclick="checkls()">Edit your preferences</a></li>
+            </ul>
+            <ul id="login" class="nav navbar-nav navbar-right">
+                <li class="sign-up"><a href="customers.html"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                <li class="login"><a href="login.html"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                <li class="logout"><a href="" onclick="logout()"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+   
+
+    <h1>Search for a restaurant</h1>
+  
+
+    <div class="form-group">
+        <label for="sel1">Select Cusine :</label>
+        <select class="form-control" id="sel1" name="sellist1">
+            <option>Select Cusine</option>
+            <option value="3">Asian</option>
+            <option value="5">Bakery</option>
+            <option value="168">Burger</option>
+            <option value="30">Cafe</option>
+            <option value="40">Fast Food</option>
+            <option value="298">Fish and Chips</option>
+        </select>
+    </div>
+    <div>
+        <button type="button" class="btn btn-primary" id="searchBTN">Search</button>
+
+    </div>
+    
+    <div  class="container-fluid">
+        <div id="ph">
+
+
+        </div>
+    </div>
+
+
+
+
+
+</body>
+</html>

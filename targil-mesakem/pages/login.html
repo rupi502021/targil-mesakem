@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+    <script src="../Scripts/ajaxCalls.js"></script>
+
+    <title></title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;           
+            height: 100vh;
+        }
+
+        #login .container #login-row #login-column #login-box {
+            margin-top: 120px;
+            max-width: 600px;
+            height: 320px;
+            border: 1px solid #9C9C9C;
+            background-color: #EAEAEA;
+        }
+
+        #login .container #login-row #login-column #login-box #login-form {
+            padding: 20px;
+        }
+
+        #login .container #login-row #login-column #login-box #login-form #register-link {
+            margin-top: -85px;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            $("#btnsubmit").click(f1);
+            
+        });
+
+        function f1() {
+            ajaxCall("GET", "../api/Customers", "", getSuccess, getError);
+        }
+
+        function getSuccess(data) {
+            console.log(data);
+            var d = data;
+            checkLogin(d);
+        }
+
+        function getError(err) {
+            console.log(err);
+        }
+
+        function checkLogin(d) {
+            let loggedin = false;
+            
+            in_email = $("#user").val();
+            in_pass = $("#pass").val();
+            
+            for (var i = 0; i < d.length; i++) {
+                if (in_email == d[i].Email && in_pass == d[i].Password) {                 
+                    loggedin = true;
+                    let api = "../api/Customers/id/" + d[i].Id
+                    ajaxCall("GET", api, "", getSuccessHigh, getErrorHigh);
+                    
+                }                               
+            }
+            function getSuccessHigh(data) {
+                console.log(data);
+                var d = data;
+                if (d == null) {
+                    localStorage.setItem("user_without_pre", JSON.stringify(in_email));
+                }
+                else {
+                    let user = {
+                        Id: d.Id,
+                        Email: d.Email
+                    }
+
+                    localStorage.setItem("user_with_pre", JSON.stringify(user));
+                }
+             
+               
+            }
+
+            function getErrorHigh(err) {
+                alert(err.responseJSON);
+            }
+
+            if (loggedin) {               
+                swal({
+                    title: "You are logged in!", text: "Moving to search page", icon:
+                        "success"
+                }).then(function () {
+                    window.location.href = 'index.html';
+                }
+                );
+            }
+            else {
+                swal({
+                    title: "Wrong credentials", text: "Try again", icon:
+                        "error"
+                })
+            }
+        }
+    </script>
+
+</head>
+<body>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Yummy</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="index.html">Search your restaurant </a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="customers.html"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                <li><a href="login.html"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            </ul>
+
+        </div>
+    </nav>
+    <div id="login">
+
+        <div class="container">
+            <div id="login-row" class="row justify-content-center align-items-center">
+                <div id="login-column" class="col-md-6">
+                    <div id="login-box" class="col-md-12">
+                        <form id="login-form" class="form" action="" method="post">
+                            <h3 class="text-center text-info">Login</h3>
+                            <div class="form-group">
+                                <label for="username" class="text-info">Username:</label><br>
+                                <input type="text" name="username" id="user" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="password" class="text-info">Password:</label><br>
+                                <input type="password" name="password" id="pass" class="form-control">
+                            </div>
+                            <div class="form-group">
+                               
+                                <button type="button" id="btnsubmit" class="btn btn-primary">Log In</button>
+                            </div>
+                            <br />
+                            <br />
+                            <div id="register-link" class="text-right">
+                                <a href="customers.html" class="text-info">Register here</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
