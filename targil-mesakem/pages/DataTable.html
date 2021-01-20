@@ -36,7 +36,7 @@
         // will run when the document is ready
         $(document).ready(function () {
 
-            // once the document is ready we fetch a list of cars from the server
+            // once the document is ready we fetch a list of camps from the server
             ajaxCall("GET", "../api/Campaigns/camp", "", getSuccess, error);
             $("#campForm").submit(onSubmitFunc); // wire the submit event to a function called f1
             $("#editDiv").hide();
@@ -50,14 +50,14 @@
                 markSelected(this);
                 $("#editDiv").show();
                 $("#editDiv :input").prop("disabled", false); // edit mode: enable all controls in the form
-                populateFields(this.getAttribute('data-campId')); // fill the form fields according to the selected row
+                getCamp(this.getAttribute('data-campId')); // fill the form fields according to the selected row
             });
 
             $(document).on("click", ".viewBtn", function () {
                 markSelected(this);
                 $("#editDiv").show();
                 $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form
-                populateFields(this.getAttribute('data-campId'));
+                getCamp(this.getAttribute('data-campId'));
             });
 
             $(document).on("click", ".deleteBtn", function () {
@@ -91,7 +91,7 @@
 
         function onSubmitFunc() {
             let campAfterEdit = {
-                Id: camp.Id,
+                Id: $("#restaurantId").val(),
                 Investment: $("#investment").val(),
                 Income: $("#income").val(),
                 View: $("#view").val(),
@@ -111,31 +111,43 @@
         }
 
         // fill the form fields
-        function populateFields(rowId) {
-            camp = getCamp(rowId);
-            $("#restaurantId").val(camp.Id);
-            $("#investment").val(camp.Investment);
-            $("#income").val(camp.Income);
-            $("#view").val(camp.View);
-            $("#click").val(camp.Click);
-            if (camp.Income >= camp.Investment) {
-                $("#active").prop('false', camp.Status);
-            }
-            else {
-                $("#active").prop('checked', camp.Status);
-            }
+        //function populateFields(rowId) {
+
+        //    camp = getCamp(rowId);
            
-        }
+        //}
 
         // get a camp according to its Id
         function getCamp(rowId) {
-            
+            rowIdafterchange = rowId;
+            ajaxCall("GET", "../api/Campaigns/camp", "", getSuccessview, error);
+            //for (i in camps) {
+            //    if (camps[i].Id == rowId)
+            //        return camps[i];
+            //}
+            //return null;
+        }
+
+        function getSuccessview(campsdata) {
+            camps = campsdata;
             for (i in camps) {
-                if (camps[i].Id == rowId)
-                    return camps[i];
+                if (camps[i].Id == rowIdafterchange) {
+                    $("#restaurantId").val(camps[i].Id);
+                    $("#investment").val(camps[i].Investment);
+                    $("#income").val(camps[i].Income);
+                    $("#view").val(camps[i].View);
+                    $("#click").val(camps[i].Click);
+                    if (camps[i].Income >= camps[i].Investment) {
+                        $("#active").prop('false', camps[i].Status);
+                    }
+                    else {
+                        $("#active").prop('checked', camps[i].Status);
+                    }
+                }
             }
             return null;
         }
+
 
         // success callback function after update
         function updateSuccess(campsdata) {
@@ -199,7 +211,7 @@
                         }
                     ],
                 });
-                 //buttonEvents();
+               
             }
 
             catch (err) {
