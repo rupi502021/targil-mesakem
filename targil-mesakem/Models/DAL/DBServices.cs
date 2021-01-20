@@ -597,7 +597,7 @@ namespace targil_mesakem.Models.DAL
             {
                 con = connect("DBConnectionString"); // create a connection to the database using the connection String defined in the web config file
 
-                String selectSTR = "SELECT * FROM Campaing_2021";
+                String selectSTR = "SELECT * FROM Campaign_2021";
                 SqlCommand cmd = new SqlCommand(selectSTR, con);
 
                 // get a reader
@@ -611,7 +611,7 @@ namespace targil_mesakem.Models.DAL
                     c.Investment = Convert.ToDouble(dr["Investment"]);
                     c.Income = Convert.ToDouble(dr["Income"]);
                     c.View = Convert.ToInt32(dr["Show"]);
-                    c.Knock = Convert.ToInt32(dr["Knock"]);
+                    c.Click = Convert.ToInt32(dr["Click"]);
                     c.Status = Convert.ToBoolean(dr["Active"]);
                     cList.Add(c);
                 }
@@ -634,7 +634,7 @@ namespace targil_mesakem.Models.DAL
 
         }
 
-        public int Insert(Campaign campaing)
+        public int Insert(Campaign campaign)
         {
 
             SqlConnection con;
@@ -649,7 +649,7 @@ namespace targil_mesakem.Models.DAL
                 throw new Exception("You didnt succeed to connect to DB", ex);
             }
 
-            String cStr = BuildInsertCommand(campaing);      // helper method to build the insert string
+            String cStr = BuildInsertCommand(campaign);      // helper method to build the insert string
 
             cmd = CreateCommand(cStr, con);             // create the command
 
@@ -682,9 +682,9 @@ namespace targil_mesakem.Models.DAL
             // use a string builder to create the dynamic string
 
             sb.AppendFormat("Values( '{0}','{1}','{2}','{3}','{4}','{5}')", campaign.Id, campaign.Investment,
-                campaign.Income, campaign.View, campaign.Knock, campaign.Status);
+                campaign.Income, campaign.View, campaign.Click, campaign.Status);
 
-            String prefix = "INSERT INTO Campaing_2021 " + "([RestaurantID],[Investment],[Income],[Show],[Knock],[Active])";
+            String prefix = "INSERT INTO Campaign_2021 " + "([RestaurantID],[Investment],[Income],[Show],[Click],[Active])";
 
             command = prefix + sb.ToString();
 
@@ -702,7 +702,7 @@ namespace targil_mesakem.Models.DAL
                 con = connect("DBConnectionString");
 
                 // create a dataadaptor
-                da = new SqlDataAdapter("select * from Campaing_2021", con);
+                da = new SqlDataAdapter("select * from Campaign_2021", con);
 
                 // automatic build the commands
                 SqlCommandBuilder builder = new SqlCommandBuilder(da);
@@ -783,7 +783,7 @@ namespace targil_mesakem.Models.DAL
         private String BuildDeleteCommand(int id)
         {
             String command;
-            command = "DELETE FROM Campaing_2021 WHERE RestaurantID = " + id;
+            command = "DELETE FROM Campaign_2021 WHERE RestaurantID = " + id;
             return command;
         }
 
@@ -832,8 +832,8 @@ namespace targil_mesakem.Models.DAL
         private String BuildUpdateCommand(Campaign camp)
         {
             String command;
-            command = "UPDATE Campaing_2021 SET Investment=" + camp.Investment + ", Income=" + camp.Income + "," +
-                "Show=" + camp.View + ", Knock=" + camp.Knock + ",Active='" + Convert.ToString(camp.Status) + "' WHERE RestaurantID=" + camp.Id;
+            command = "UPDATE Campaign_2021 SET Investment=" + camp.Investment + ", Income=" + camp.Income + "," +
+                "Show=" + camp.View + ", Click=" + camp.Click + ",Active='" + Convert.ToString(camp.Status) + "' WHERE RestaurantID=" + camp.Id;
             return command;
         }
 

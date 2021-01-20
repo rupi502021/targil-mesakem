@@ -36,12 +36,12 @@ namespace targil_mesakem.Controllers
         }
 
         // POST api/<controller>
-        public HttpResponseMessage Post([FromBody] Campaign campaing)
+        public HttpResponseMessage Post([FromBody] Campaign campaign)
         {
             try
             {
-                campaing.Insert();
-                return Request.CreateResponse(HttpStatusCode.Created, campaing);
+                campaign.Insert();
+                return Request.CreateResponse(HttpStatusCode.Created, campaign);
             }
             catch (Exception ex)
             {
@@ -56,7 +56,7 @@ namespace targil_mesakem.Controllers
             List<Campaign> cList = c.ReadAll();
             if (num == 0)
             {
-                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "campaing: " + c + " does not exist");
+                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "campaign: " + c + " does not exist");
             }
             else
             {

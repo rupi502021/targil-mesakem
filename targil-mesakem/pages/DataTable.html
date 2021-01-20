@@ -95,7 +95,7 @@
                 Investment: $("#investment").val(), // for now we do not change the image
                 Income: $("#income").val(),
                 View: $("#view").val(),
-                Knock: $("#knock").val(),
+                Click: $("#click").val(),
                 Status: $("#active").is(":checked")
             }
             console.log(campAfterEdit)
@@ -111,12 +111,13 @@
             $("#investment").val(camp.Investment);
             $("#income").val(camp.Income);
             $("#view").val(camp.View);
-            $("#knock").val(camp.Knock);
+            $("#click").val(camp.Click);
             $("#active").prop('checked', camp.Status);
         }
 
-        // get a car according to its Id
+        // get a camp according to its Id
         function getCamp(rowId) {
+            location.reload();
             for (i in camps) {
                 if (camps[i].Id == rowId)
                     return camps[i];
@@ -174,7 +175,7 @@
                         { data: "Investment" },
                         { data: "Income" },
                         { data: "View" },
-                        { data: "Knock" },
+                        { data: "Click" },
                         {
                             data: "Status",
                             render: function (data, type, row, meta) {
@@ -225,7 +226,7 @@
                         <th>Investment</th>
                         <th>Income</th>
                         <th>Views</th>
-                        <th>Knocks</th>
+                        <th>Clicks</th>
                         <th>Active</th>
                     </tr>
                 </thead>
@@ -259,8 +260,8 @@
                     </div>
 
                     <div class="form-group col-sm-3">
-                        <label for="knock"><span class="red-star">★ </span>Knocks</label>
-                        <input type="number" class="form-control" id="knock" placeholder="Enter the knocks" required />
+                        <label for="click"><span class="red-star">★ </span>Clicks</label>
+                        <input type="number" class="form-control" id="click" placeholder="Enter the clicks" required />
                     </div>
 
                     <div class="form-group col-sm-3">

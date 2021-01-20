@@ -13,16 +13,16 @@ namespace targil_mesakem.Models
         double investment;
         double income;
         int view;
-        int knock;
+        int click;
         bool status;
 
-        public Campaign(int id, double investment, double income, int view, int knock, bool status)
+        public Campaign(int id, double investment, double income, int view, int click, bool status)
         {
             Id = id;
             Investment = investment;
             Income = income;
             View = view;
-            Knock = knock;
+            Click = click;
             Status = status;
         }
 
@@ -30,7 +30,7 @@ namespace targil_mesakem.Models
         public double Investment { get => investment; set => investment = value; }
         public double Income { get => income; set => income = value; }
         public int View { get => view; set => view = value; }
-        public int Knock { get => knock; set => knock = value; }
+        public int Click { get => click; set => click = value; }
         public bool Status { get => status; set => status = value; }
 
         public Campaign() { }
@@ -75,7 +75,7 @@ namespace targil_mesakem.Models
                 c.Investment = Convert.ToDouble(dr["Investment"]);
                 c.Income = Convert.ToDouble(dr["Income"]);
                 c.View = Convert.ToInt32(dr["Show"]);
-                c.Knock = Convert.ToInt32(dr["Knock"]);
+                c.Click = Convert.ToInt32(dr["Click"]);
                 c.Status = Convert.ToBoolean(dr["Active"]);
                 cList.Add(c);
             }
