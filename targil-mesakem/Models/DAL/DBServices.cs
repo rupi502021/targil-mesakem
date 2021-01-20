@@ -585,5 +585,258 @@ namespace targil_mesakem.Models.DAL
             }
 
         }
+        //
+
+        public List<Campaign> getallcamp()
+        {
+
+            SqlConnection con = null;
+            List<Campaign> cList = new List<Campaign>();
+
+            try
+            {
+                con = connect("DBConnectionString"); // create a connection to the database using the connection String defined in the web config file
+
+                String selectSTR = "SELECT * FROM Campaing_2021";
+                SqlCommand cmd = new SqlCommand(selectSTR, con);
+
+                // get a reader
+                SqlDataReader dr = cmd.ExecuteReader(CommandBehavior.CloseConnection); // CommandBehavior.CloseConnection: the connection will be closed after reading has reached the end
+
+                while (dr.Read())
+                {   // Read till the end of the data into a row
+
+                    Campaign c = new Campaign();
+                    c.Id = Convert.ToInt32(dr["RestaurantID"]);
+                    c.Investment = Convert.ToDouble(dr["Investment"]);
+                    c.Income = Convert.ToDouble(dr["Income"]);
+                    c.View = Convert.ToInt32(dr["Show"]);
+                    c.Knock = Convert.ToInt32(dr["Knock"]);
+                    c.Status = Convert.ToBoolean(dr["Active"]);
+                    cList.Add(c);
+                }
+
+                return cList;
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null)
+                {
+                    con.Close();
+                }
+
+            }
+
+        }
+
+        public int Insert(Campaign campaing)
+        {
+
+            SqlConnection con;
+            SqlCommand cmd;
+
+            try
+            {
+                con = connect("DBConnectionString"); // create the connection
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("You didnt succeed to connect to DB", ex);
+            }
+
+            String cStr = BuildInsertCommand(campaing);      // helper method to build the insert string
+
+            cmd = CreateCommand(cStr, con);             // create the command
+
+            try
+            {
+                int numEffected = cmd.ExecuteNonQuery(); // execute the command
+                return numEffected;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("You didnt succeed to add a new campaign, Try again!", ex);
+            }
+
+            finally
+            {
+                if (con != null)
+                {
+                    // close the db connection
+                    con.Close();
+                }
+            }
+
+        }
+
+        private String BuildInsertCommand(Campaign campaign)
+        {
+            String command;
+
+            StringBuilder sb = new StringBuilder();
+            // use a string builder to create the dynamic string
+
+            sb.AppendFormat("Values( '{0}','{1}','{2}','{3}','{4}','{5}')", campaign.Id, campaign.Investment,
+                campaign.Income, campaign.View, campaign.Knock, campaign.Status);
+
+            String prefix = "INSERT INTO Campaing_2021 " + "([RestaurantID],[Investment],[Income],[Show],[Knock],[Active])";
+
+            command = prefix + sb.ToString();
+
+            return command;
+        }
+
+        public DBServices getCampaignDT()
+        {
+
+            SqlConnection con = null;
+
+            try
+            {
+                // connect
+                con = connect("DBConnectionString");
+
+                // create a dataadaptor
+                da = new SqlDataAdapter("select * from Campaing_2021", con);
+
+                // automatic build the commands
+                SqlCommandBuilder builder = new SqlCommandBuilder(da);
+
+                // create a DataSet
+                DataSet ds = new DataSet();
+
+
+                // Fill the Dataset
+                da.Fill(ds);
+
+                // keep the table in a field
+                dt = ds.Tables[0];
+            }
+
+            catch (Exception)
+            {
+                // write to log
+            }
+
+            finally
+            {
+                if (con != null)
+                    con.Close();
+            }
+
+            return this;
+
+
+        }
+        public void Update()
+        {
+            da.Update(dt);
+        }
+
+        public int Delete(int id)
+        {
+
+            SqlConnection con;
+            SqlCommand cmd;
+
+            try
+            {
+                con = connect("DBConnectionString"); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
+            String cStr = BuildDeleteCommand(id);      // helper method to build the insert string
+
+            cmd = CreateCommand(cStr, con);             // create the command
+
+            try
+            {
+                int numEffected = cmd.ExecuteNonQuery(); // execute the command
+                return numEffected;
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
+            finally
+            {
+                if (con != null)
+                {
+                    // close the db connection
+                    con.Close();
+                }
+            }
+
+        }
+
+        private String BuildDeleteCommand(int id)
+        {
+            String command;
+            command = "DELETE FROM Campaing_2021 WHERE RestaurantID = " + id;
+            return command;
+        }
+
+        public int Update(Campaign camp)
+        {
+
+            SqlConnection con;
+            SqlCommand cmd;
+
+            try
+            {
+                con = connect("DBConnectionString"); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
+            String cStr = BuildUpdateCommand(camp);      // helper method to build the insert string
+
+            cmd = CreateCommand(cStr, con);             // create the command
+
+            try
+            {
+                int numEffected = cmd.ExecuteNonQuery(); // execute the command
+                return numEffected;
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
+            finally
+            {
+                if (con != null)
+                {
+                    // close the db connection
+                    con.Close();
+                }
+            }
+
+        }
+
+        private String BuildUpdateCommand(Campaign camp)
+        {
+            String command;
+            command = "UPDATE Campaing_2021 SET Investment=" + camp.Investment + ", Income=" + camp.Income + "," +
+                "Show=" + camp.View + ", Knock=" + camp.Knock + ",Active='" + Convert.ToString(camp.Status) + "' WHERE RestaurantID=" + camp.Id;
+            return command;
+        }
+
+
     }
 }
