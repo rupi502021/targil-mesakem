@@ -92,14 +92,20 @@
         function onSubmitFunc() {
             let campAfterEdit = {
                 Id: camp.Id,
-                Investment: $("#investment").val(), // for now we do not change the image
+                Investment: $("#investment").val(),
                 Income: $("#income").val(),
                 View: $("#view").val(),
                 Click: $("#click").val(),
-                Status: $("#active").is(":checked")
+                
             }
+            if (campAfterEdit.Income >= campAfterEdit.Investment) {
+                campAfterEdit = { ...campAfterEdit, Status: false };
+            } else {
+                campAfterEdit = { ...campAfterEdit, Status: true };
+            }
+
             console.log(campAfterEdit)
-        //    // update a new Car record to the server
+        //    // update a new Camp record to the server
             ajaxCall("PUT", "../api/Campaigns", JSON.stringify(campAfterEdit), updateSuccess, error);
             return false;
         }
@@ -112,12 +118,18 @@
             $("#income").val(camp.Income);
             $("#view").val(camp.View);
             $("#click").val(camp.Click);
-            $("#active").prop('checked', camp.Status);
+            if (camp.Income >= camp.Investment) {
+                $("#active").prop('false', camp.Status);
+            }
+            else {
+                $("#active").prop('checked', camp.Status);
+            }
+           
         }
 
         // get a camp according to its Id
         function getCamp(rowId) {
-            location.reload();
+            
             for (i in camps) {
                 if (camps[i].Id == rowId)
                     return camps[i];
@@ -155,7 +167,7 @@
         // this function is activated in case of a success
         function getSuccess(campsdata) {
             console.log(campsdata);
-            camps = campsdata; // keep the cars array in a global variable;
+            camps = campsdata; // keep the camps array in a global variable;
             try {
                 tbl = $('#campsTable').DataTable({
                     data: campsdata,
