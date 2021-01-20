@@ -35,13 +35,28 @@
 
         // will run when the document is ready
         $(document).ready(function () {
-
+            checkLogin();
             // once the document is ready we fetch a list of camps from the server
             ajaxCall("GET", "../api/Campaigns/camp", "", getSuccess, error);
             $("#campForm").submit(onSubmitFunc); // wire the submit event to a function called f1
             $("#editDiv").hide();
             buttonEvents();
         });
+
+        function checkLogin() {
+            var l = JSON.parse(localStorage.getItem('user_without_pre'));
+            var l1 = JSON.parse(localStorage.getItem('user_with_pre'));
+            if (l != null || l1 != null) {
+                $('.sign-up').hide();
+                $('.login').hide();
+                $('.logout').show();
+            }
+            else {
+                $('.sign-up').show();
+                $('.login').show();
+                $('.logout').hide();
+            }
+        }
 
         // wire all the buttons to their functions
         function buttonEvents() {
@@ -110,22 +125,12 @@
             return false;
         }
 
-        // fill the form fields
-        //function populateFields(rowId) {
-
-        //    camp = getCamp(rowId);
-           
-        //}
-
+        
         // get a camp according to its Id
         function getCamp(rowId) {
             rowIdafterchange = rowId;
             ajaxCall("GET", "../api/Campaigns/camp", "", getSuccessview, error);
-            //for (i in camps) {
-            //    if (camps[i].Id == rowId)
-            //        return camps[i];
-            //}
-            //return null;
+          
         }
 
         function getSuccessview(campsdata) {
@@ -224,10 +229,42 @@
             swal("Error: " + err);
         }
 
+        function checkls() {
+            if (localStorage.getItem('user_with_pre') == null && localStorage.getItem('user_without_pre') == null) {
+                swal({
+                    title: "Wrong way!", text: "You need to sign up or login first!", icon:
+                        "error"
+                })
+            }
+            else {
+                window.location.href = "Preferences.html";
+            }
+        }
+        function logout() {
+            localStorage.removeItem('user_without_pre');
+            localStorage.removeItem('user_with_pre');
+        }
     </script>
 
 </head>
 <body>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Yummy</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="index.html">Search your restaurant </a></li>
+                <li><a onclick="checkls()">Edit your preferences</a></li>
+                <li class="active"><a href="DataTable.html">Manager page </a></li>
+            </ul>
+            <ul id="login" class="nav navbar-nav navbar-right">
+                <li class="sign-up"><a href="customers.html"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                <li class="login"><a href="login.html"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                <li class="logout"><a href="" onclick="logout()"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
     <div class="tab">
         <a href="campaign.html" class="btn btn-primary">Go to Add more Campaigns</a>
     </div>

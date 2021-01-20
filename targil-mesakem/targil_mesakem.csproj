@@ -182,7 +182,6 @@
     <Content Include="pages\campaign.html" />
     <Content Include="pages\customers.html" />
     <Content Include="pages\DataTable.html" />
-    <Content Include="pages\favorites.html" />
     <Content Include="pages\index.html" />
     <Content Include="pages\login.html" />
     <Content Include="pages\Preferences.html" />
