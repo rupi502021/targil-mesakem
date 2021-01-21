@@ -62,8 +62,7 @@
         $(document).ready(function () {
             console.log("ready!");
             checkLogin();
-            getAllRest();
-            getStatus();
+            getAllRest();         
         });
 
         function checkLogin() {
@@ -81,15 +80,7 @@
             }
         }
 
-        function getStatus() {
-            ajaxCall("GET", "../api/Campaigns/status", "", getSuccessST, getErrorST)
-        }
-        function getSuccessST(data) {
-            console.log(data);
-        }
-        function getErrorST(err) {
-            console.log(err.responseText)
-        }
+     
 
         function func1() {
             let _investment = $("#investmentTB").val();
@@ -121,6 +112,7 @@
                 console.log(JSON.stringify(campaign));
                 ajaxCall("POST", "../api/Campaigns", JSON.stringify(campaign), postSuccess, postError);
             }
+            clear();
         }
         function postSuccess(data) {
             swal({
@@ -169,6 +161,10 @@
         function logout() {
             localStorage.removeItem('user_without_pre');
             localStorage.removeItem('user_with_pre');
+        }
+        function clear() {
+            $("#investmentTB").val("");
+            $("#allRest").val(0);
         }
 
     </script>

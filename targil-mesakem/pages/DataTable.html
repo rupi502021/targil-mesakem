@@ -65,7 +65,10 @@
             $(document).on("click", ".editBtn", function () {
                 markSelected(this);
                 $("#editDiv").show();
-                $("#editDiv :input").prop("disabled", false); // edit mode: enable all controls in the form
+                $("#editDiv :input").prop("disabled", "disabled"); // edit mode: enable all controls in the form
+                $("input#investment").prop("disabled", false);
+                $("input#active").prop("disabled", false);
+                $("button#saveBTN").prop("disabled", false);                
                 getCamp(this.getAttribute('data-campId')); // fill the form fields according to the selected row
             });
 
@@ -111,10 +114,10 @@
                 Investment: $("#investment").val(),
                 Income: $("#income").val(),
                 View: $("#view").val(),
-                Click: $("#click").val(),
-                
+                Click: $("#click").val(),               
             }
-            if (campAfterEdit.Income >= campAfterEdit.Investment) {
+            status = $("#active").is(":checked");
+            if (campAfterEdit.Income >= campAfterEdit.Investment || status == "false") {
                 campAfterEdit = { ...campAfterEdit, Status: false };
             } else {
                 campAfterEdit = { ...campAfterEdit, Status: true };

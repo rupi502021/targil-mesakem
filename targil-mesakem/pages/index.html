@@ -46,6 +46,9 @@
         div#ph {
             margin-left: 118px;
         }
+        #phFinanced{
+            background:#08f7b9;
+        }
     </style>
     <title>Our Zomato</title>
 
@@ -84,14 +87,14 @@
             }
             else
             {
-                console.log(_cusine);
+                console.log("cusuine",_cusine);
                 let api = "../api/Businesses/cusine/" + _cusine;
                 ajaxCall("GET", api, "", getSuccess, getError);
             }
         }
 
         function getSuccess(data) {
-            console.log(data);
+            console.log("RestaurantByCusine",data);
             d = data;
             if (localStorage.getItem('user_with_pre') == null) {
                 str = "We found " + d.length + " results for you arranged from high to low rating";
@@ -103,24 +106,26 @@
                     return b.Rating - a.Rating;
                 });
                 renderBusinesses(d);
+
+                ajaxCall("GET", "../api/Campaigns/cusine/" + _cusine, "", getSuccessCamp, getError)
             }
             else {                
                 var l1 = JSON.parse(localStorage.getItem('user_with_pre'));
                 let api = "../api/Businesses/pre/" + l1.Id + "/cusine/" + _cusine;
-                ajaxCall("GET", api, "", getSuccesspre, getErrorpre);
-            }
-            
+                ajaxCall("GET", api, "", getSuccessPre, getError);
+            }           
         }
-        function getSuccesspre(data) {
-           
+        function getSuccessPre(data) {
+
+            dPreToFinance = data;
             dPre = data;
+            
             str = "We found results for you arranged from your preferences";
             swal({
                 title: "Yohoo!", text: str, icon:
                     "success"
             })
-           
-            
+                    
             for (var i = 0; i < d.length; i++) {
                 var exist = false;
                 for (var j = 0; j < dPre.length; j++) {
@@ -132,22 +137,61 @@
                 if (exist != true) {
                     dPre.push(d[i]);
                 }
-            }
-            
+            }            
 
             console.log(dPre);
             renderBusinesses(dPre);
+
+            ajaxCall("GET", "../api/Campaigns/cusine/" + _cusine, "", getSuccessCampPre, getError)
         }
 
-        function getErrorpre(err) {
-            alert(err.responseJSON);
+        function getSuccessCamp(data) {
+            console.log("campByCusine", data);
+            
+            ajaxCall("PUT", "../api/Campaigns/view", JSON.stringify(data), updateViewSuccess, getUpdateError);
+            renderBusinessesFinance(data);
+           
+            return false;            
+        }
+        function getSuccessCampPre(data) {
+            console.log("campByCusinePre", data);
+            arrFinanceByPre = [];
+            for (var i = 0; i < data.length; i++) {               
+                for (var j = 0; j < dPreToFinance.length; j++) {
+                    if (data[i].Id == dPreToFinance[j].Id) {
+                        arrFinanceByPre.push(d[i]);
+                    }
+                }
+            }         
+            ajaxCall("PUT", "../api/Campaigns/view", JSON.stringify(data), updateViewSuccess, getUpdateError);
+            renderBusinessesFinance(data);
+
+            return false;
+        }
+        function updateViewSuccess(data) {
+            console.log("succeedUpdateView", data);           
+        }
+        function getUpdateError(err) {
+            console.log(err.responseJSON);
         }
         function getError(err) {
             alert(err.responseJSON);
         }
 
-        function checkclick(obj,url) {
+        function checkclick(obj, url) {
+            console.log(obj);
+            
+
+            ajaxCall("PUT", "../api/Campaigns/click", JSON.stringify(obj.id), updateClickSuccess, getUpdateClickError);
+           
             window.location.href = url;
+            return false;
+        }
+        function updateClickSuccess(data) {
+            console.log("succeedUpdateClick", data);
+        }
+        function getUpdateClickError(err) {
+            console.log(err.responseJSON);
         }
 
         renderBusinesses = (d) => {  
@@ -183,7 +227,40 @@
 
             $("#ph").append(str)
         }
- 
+        renderBusinessesFinance = (d) => {
+            $("#phFinanced").html("");
+            let str = "";
+            for (var i = 0; i < d.length; i++) {
+                obj = d[i];
+                str += "<div class='row col-sm-4 col-lg-3' >"
+                str += "<div class='rest' id=" + obj.Id + " onclick = checkclick(this,'" + obj.Url + "') > ";
+                let _name = obj.Name;
+                str += "<h4>Name: " + _name + "</h4>";
+                let _id = obj.Id;
+                str += "<span><b>Id:</b> " + _id + "</span><br>";
+                let _photo_url = obj.Photo_url;
+                if (_photo_url == "") {
+                    _photo_url = "https://img.mako.co.il/2017/08/30/vmbnubvthbvznhbv_c.jpg";
+                }
+                str += "<img src='" + _photo_url + "'><br>";
+                let _rating = obj.Rating;
+                if (_rating != 0)
+                    str += "<span><b>Rating:</b> " + _rating + "</span><br>";
+                let _category = obj.Category;
+                str += "<span><b>Category:</b> " + _category + "</span><br>";
+                let _price_range = obj.Price_range;
+                str += "<span><b>Price range:</b> " + _price_range + "</span><br>";
+                let _address = obj.Address;
+                str += "<span><b>Address:</b> " + _address + "</span><br>";
+                let _phones = obj.Phones;
+                str += "<span><b>Phones:</b> " + _phones + "</span><br>";
+                str += "</div>";
+                str += "</div>";
+            }
+
+            $("#phFinanced").append(str)
+        }
+
         function checkls() {
             if (localStorage.getItem('user_with_pre') == null && localStorage.getItem('user_without_pre') == null) {             
                 swal({
@@ -222,10 +299,9 @@
             </ul>
         </div>
     </nav>
-   
+
 
     <h1>Search for a restaurant</h1>
-  
 
     <div class="form-group">
         <label for="sel1">Select Cusine :</label>
@@ -243,8 +319,14 @@
         <button type="button" class="btn btn-primary" id="searchBTN">Search</button>
 
     </div>
-    
-    <div  class="container-fluid">
+
+    <div class="container-fluid">
+        <div id="phFinanced">
+
+
+        </div>
+    </div>
+    <div class="container-fluid">
         <div id="ph">
 
 

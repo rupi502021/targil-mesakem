@@ -22,11 +22,40 @@ namespace targil_mesakem.Controllers
         }
 
         [HttpGet]
-        [Route("api/Campaigns/status")]
-        public List<Campaign> GetStatusCamp()
+        [Route("api/Campaigns/cusine/{_cusine}")]
+        public HttpResponseMessage GetStatusCamp(string _cusine)
         {
-            Campaign campaign = new Campaign();
-            return campaign.NonActive();
+            try
+            {
+                Businesses business = new Businesses();
+                Campaign campaign = new Campaign();
+                List<Businesses> bListfiltered = new List<Businesses>();
+                List<Campaign> cList = campaign.ActiveCamp();
+                List<Businesses> bList = business.Read();
+                for (int j = 0; j < cList.Count; j++)
+                {
+                    for (int i = 0; i < bList.Count; i++)
+                    {
+                        if (bList[i].Id == cList[j].Id)
+                        {
+                            var ctgry = bList[i].Category.Split(',');
+                            foreach (var item in ctgry)
+                            {
+                                if (_cusine == item || (" " + _cusine) == item)
+                                {
+                                    bListfiltered.Add(bList[i]);
+                                }
+                            }
+                        }
+                    }
+                }
+               
+                return Request.CreateResponse(HttpStatusCode.OK, bListfiltered);
+            }
+            catch(Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.NotFound, ex.Message);
+            }
         }
 
         // GET api/<controller>/5
@@ -63,7 +92,63 @@ namespace targil_mesakem.Controllers
                 return Request.CreateResponse(HttpStatusCode.OK, cList);
             }
         }
-
+        [HttpPut]
+        [Route("api/Campaigns/view")]
+        public HttpResponseMessage Put([FromBody] List<Businesses> bList)
+        {
+            var num=0;
+            Businesses business = new Businesses();
+            Campaign c = new Campaign();
+            List<Businesses> bListfiltered = new List<Businesses>();
+            List<Campaign> cList = c.ReadAll();
+            for (int j = 0; j < cList.Count; j++)
+            {
+                 for (int i = 0; i < bList.Count; i++)
+                 {
+                    if(bList[i].Id == cList[j].Id)
+                    {
+                        cList[j].View += 1;
+                        cList[j].Income += 0.1;
+                        num += cList[j].Update();
+                        bListfiltered.Add(bList[i]);
+                    }                      
+                 }               
+            }
+            
+            if (num == 0)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "campaign not updated, no campaign with such cusine");
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, bListfiltered);
+            }
+        }
+        [HttpPut]
+        [Route("api/Campaigns/click")]
+        public HttpResponseMessage Put([FromBody] int id)
+        {
+            var num = 0;
+            Campaign c = new Campaign();
+            List<Campaign> cList = c.ReadAll();
+            for (int j = 0; j < cList.Count; j++)
+            {
+                if (id == cList[j].Id)
+                {
+                    cList[j].Click += 1;
+                    cList[j].Income += 0.5;
+                    num += cList[j].Update();
+                }
+            }
+            if (num == 0)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "campaign not updated, no campaign with such cusine");
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, cList);
+            }
+        }
         // DELETE api/<controller>/5
         public HttpResponseMessage Delete(int id)
         {

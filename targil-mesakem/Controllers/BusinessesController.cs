@@ -80,16 +80,13 @@ namespace targil_mesakem.Controllers
                             rListfiltered.Add(rlist[i]);
                         }
                     }
-
                 }
-                return Request.CreateResponse(HttpStatusCode.OK, rListfiltered);
-                              
+                return Request.CreateResponse(HttpStatusCode.OK, rListfiltered);                              
             }
             catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.NotFound, ex.Message);
             }
-
 
         }
         // POST api/<controller>

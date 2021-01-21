@@ -72,8 +72,7 @@
                 if (in_email == d[i].Email && in_pass == d[i].Password) {                 
                     loggedin = true;
                     let api = "../api/Customers/id/" + d[i].Id
-                    ajaxCall("GET", api, "", getSuccessHigh, getErrorHigh);
-                    
+                    ajaxCall("GET", api, "", getSuccessHigh, getErrorHigh);                   
                 }                               
             }
             function getSuccessHigh(data) {

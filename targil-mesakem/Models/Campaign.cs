@@ -60,29 +60,36 @@ namespace targil_mesakem.Models
             return c;
         }
 
-        public List<Campaign> NonActive()
+        public List<Campaign> ActiveCamp()
         {
 
             List<Campaign> cList = new List<Campaign>();
             DBServices dbs = new DBServices();
             dbs = dbs.getCampaignDT();
-            dbs.dt = NonActiveCamp(dbs.dt);
+            dbs.dt = checkActiveCamp(dbs.dt);
             dbs.Update();
 
             foreach (DataRow dr in dbs.dt.Rows)
             {
                 Campaign c = new Campaign();
+                              
+                c.Id = Convert.ToInt32(dr["RestaurantID"]);
                 c.Investment = Convert.ToDouble(dr["Investment"]);
                 c.Income = Convert.ToDouble(dr["Income"]);
                 c.View = Convert.ToInt32(dr["Show"]);
                 c.Click = Convert.ToInt32(dr["Click"]);
                 c.Status = Convert.ToBoolean(dr["Active"]);
-                cList.Add(c);
+                if (c.Status != false)
+                {
+                    cList.Add(c);
+                }
+               
             }
+            
             return cList;
         }
 
-        private DataTable NonActiveCamp(DataTable dt)
+        private DataTable checkActiveCamp(DataTable dt)
         {
             foreach (DataRow dr in dt.Rows)
             {

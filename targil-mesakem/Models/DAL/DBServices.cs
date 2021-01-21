@@ -597,7 +597,7 @@ namespace targil_mesakem.Models.DAL
             {
                 con = connect("DBConnectionString"); // create a connection to the database using the connection String defined in the web config file
 
-                String selectSTR = "SELECT * FROM Campaign_2021";
+                String selectSTR = "SELECT * FROM Campaign_2021 order by Campaign_2021.Investment desc";
                 SqlCommand cmd = new SqlCommand(selectSTR, con);
 
                 // get a reader
@@ -702,7 +702,7 @@ namespace targil_mesakem.Models.DAL
                 con = connect("DBConnectionString");
 
                 // create a dataadaptor
-                da = new SqlDataAdapter("select * from Campaign_2021", con);
+                da = new SqlDataAdapter("select * from Campaign_2021 order by [Campaign_2021].Investment desc", con);
 
                 // automatic build the commands
                 SqlCommandBuilder builder = new SqlCommandBuilder(da);
