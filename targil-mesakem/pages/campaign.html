@@ -9,6 +9,53 @@
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="../Scripts/ajaxCallsWithKey.js"></script>
     <script src="../Scripts/jquery-3.4.1.min.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+
+    <style>
+        #regForm {
+            background-color: #ffffff;
+            margin: 100px auto;
+            font-family: Raleway;
+            padding: 40px;
+            width: 70%;
+            min-width: 300px;
+            border-color: gray;
+            border-style: solid;
+            border-width: medium;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        input {
+            padding: 10px;
+            width: 100%;
+            font-size: 17px;
+            font-family: Raleway;
+            border: 1px solid #aaaaaa;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 17px;
+            font-family: Raleway;
+            cursor: pointer;
+        }
+        hr.dashed {
+            border-top: 3px dashed #bbb;
+        }
+        div#view_All {
+            position: fixed;
+            left: 15%;
+        }
+    </style>
+
     <title>Campaign</title>
 
     <script>
@@ -48,11 +95,20 @@
             let _investment = $("#investmentTB").val();
             _id = $("#allRest option:selected").val();
             if (_investment == 0 && _id != 0)
-                alert("You did not enter an initial investment amount!");
+                swal({
+                    title: "Wrong!", text: "You did not enter an initial investment amount!", icon:
+                        "error"
+                });
             else if (_investment != 0 && _id == 0)
-                alert("You did not select a restaurant!");
+                swal({
+                    title: "Wrong!", text: "You did not select a restaurant!", icon:
+                        "error"
+                });
             else if (_investment == 0 && _id == 0)
-                alert("You did not enter any value!");
+                swal({
+                    title: "Wrong!", text: "You did not enter any value!", icon:
+                        "error"
+                });
             else {
                 campaign = {
                     Id: _id,
@@ -67,7 +123,10 @@
             }
         }
         function postSuccess(data) {
-            alert("Succeed to add to Database!");
+            swal({
+                title: "Success!", text: "The New campaign has been added", icon:
+                    "success"
+            })
         }
         function postError(err) {
             alert(err.responseJSON);
@@ -86,7 +145,7 @@
         }
         function renderAll(d) {
             $("#ph1").html("");
-            let str = "<label for='sel1'>Select Restaurant:</label>";
+            let str = "";
             str += "<select id='allRest'>";
             str += "<option value='0'>select restaurant</option>";
             for (var i = 0; i < d.length; i++) {
@@ -111,6 +170,7 @@
             localStorage.removeItem('user_without_pre');
             localStorage.removeItem('user_with_pre');
         }
+
     </script>
 
 
@@ -133,24 +193,30 @@
             </ul>
         </div>
     </nav>
-    <div id="ph1"></div>
-    <br />
-    <table>
-        <tr>
-            <td>
-                <input type="number" id="investmentTB" placeholder="Enter your investment" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <button type="button" id="investmentBTN" onclick="func1()">sent initial investment</button>
-            </td>
-        </tr>
-    </table>
-    <br />
-    <br />
-    <div class="tab">
+
+    <div id="view_All">
         <a href="DataTable.html" class="btn btn-primary">View All Campaigns</a>
     </div>
+
+    <form id="regForm">
+        <div class="tab">
+            <h3>Restaurant</h3>
+            <section>
+                <label>Please select your restaurant:</label>
+                <p id="ph1"></p>
+            </section>
+        </div>
+        <hr class="dashed">
+        <div class="tab">
+            <h3>Investment</h3>
+            <label>Please enter your investment:</label>
+            <input type="number" id="investmentTB" placeholder="Enter your investment..." class="required">
+        </div>
+        <div style="float:right;">
+            <br />
+            <button type="button" id="investmentBTN" onclick="func1()">Submit</button>
+        </div>
+    </form>
+
 </body>
 </html>
