@@ -43,12 +43,10 @@
             background-color: yellow;
             margin: 5px auto
         }
-        div#ph {
-            margin-left: 118px;
+        #Fina{
+            background-color:#d7f7df;
         }
-        #phFinanced{
-            background:#08f7b9;
-        }
+
     </style>
     <title>Our Zomato</title>
 
@@ -95,7 +93,7 @@
 
         function getSuccess(data) {
             console.log("RestaurantByCusine",data);
-            d = data;
+            d = cloneVariable(data);
             if (localStorage.getItem('user_with_pre') == null) {
                 str = "We found " + d.length + " results for you arranged from high to low rating";
                 swal({
@@ -105,8 +103,7 @@
                 d.sort(function (a, b) {
                     return b.Rating - a.Rating;
                 });
-                renderBusinesses(d);
-
+                
                 ajaxCall("GET", "../api/Campaigns/cusine/" + _cusine, "", getSuccessCamp, getError)
             }
             else {                
@@ -115,9 +112,35 @@
                 ajaxCall("GET", api, "", getSuccessPre, getError);
             }           
         }
-        function getSuccessPre(data) {
+        function getSuccessCamp(data) {
+            console.log("campByCusine", data);
+            arrRestOraganic = [];
+            for (var i = 0; i < d.length; i++) {
+                var exist = false;
+                for (var j = 0; j < data.length; j++) {
+                    if (d[i].Id == data[j].Id) {
+                        exist = true;
+                        break;
+                    }
+                }
+                if (exist != true) {
+                    arrRestOraganic.push(d[i]);
+                }
+            }          
 
-            dPreToFinance = data;
+            renderBusinesses(arrRestOraganic);
+            ajaxCall("PUT", "../api/Campaigns/view", JSON.stringify(data), updateViewSuccess, getUpdateError);
+            renderBusinessesFinance(data);
+
+            return false;
+        }
+        function updateViewSuccess(data) {
+            console.log("succeedUpdateView", data);
+        }
+        //dPre == דאטה שמתחיל בהעדפות ומוסיפים לו את שאר המסעדות מאותו קוזין
+        //d_withpre = מסעדות רלוונטיות למשתמש
+        function getSuccessPre(data) {
+            d_withPre = cloneVariable(data);
             dPre = data;
             
             str = "We found results for you arranged from your preferences";
@@ -139,37 +162,66 @@
                 }
             }            
 
-            console.log(dPre);
-            renderBusinesses(dPre);
-
             ajaxCall("GET", "../api/Campaigns/cusine/" + _cusine, "", getSuccessCampPre, getError)
         }
 
-        function getSuccessCamp(data) {
-            console.log("campByCusine", data);
-            
-            ajaxCall("PUT", "../api/Campaigns/view", JSON.stringify(data), updateViewSuccess, getUpdateError);
-            renderBusinessesFinance(data);
-           
-            return false;            
+        function cloneVariable(original)
+        {
+            var newInstance = JSON.parse(JSON.stringify(original));
+            return newInstance;
+
         }
+        
         function getSuccessCampPre(data) {
             console.log("campByCusinePre", data);
             arrFinanceByPre = [];
+            //בודק לפי המסעדות הרלוונטיות למשתמש ומכניס לתחילת הרשימה
             for (var i = 0; i < data.length; i++) {               
-                for (var j = 0; j < dPreToFinance.length; j++) {
-                    if (data[i].Id == dPreToFinance[j].Id) {
-                        arrFinanceByPre.push(d[i]);
+                for (var j = 0; j < d_withPre.length; j++) {
+                    if (data[i].Id == d_withPre[j].Id) {
+                        arrFinanceByPre.push(data[i]);
                     }
                 }
-            }         
-            ajaxCall("PUT", "../api/Campaigns/view", JSON.stringify(data), updateViewSuccess, getUpdateError);
-            renderBusinessesFinance(data);
+            }   
+            //בודק את כל הקמפיינים ומכניס רק את הקמפיינים שלא ברשימת ההעדפות של המשתמש
+            for (var i = 0; i < data.length; i++) {
+                var exist = false;
+                for (var j = 0; j < d_withPre.length; j++) {
+                    if (data[i].Id == d_withPre[j].Id) {
+                        exist = true;
+                        break;
+                    }
+                }
+                if (exist != true) {
+                    arrFinanceByPre.push(data[i]);
+                }
+            }       
+
+
+            //רינדור לחלק התחתון האורגני
+            arrRestOraganic = [];
+            for (var i = 0; i < dPre.length; i++) {
+                var exist = false;
+                for (var j = 0; j < arrFinanceByPre.length; j++) {
+                    if (dPre[i].Id == arrFinanceByPre[j].Id) {
+                        exist = true;
+                        break;
+                    }
+                }
+                if (exist != true) {
+                    arrRestOraganic.push(dPre[i]);
+                }
+            }          
+            // רנדור החלק האורגני אחרי הוצאת החלק הממומן מהרשימה
+            renderBusinesses(arrRestOraganic);
+            ajaxCall("PUT", "../api/Campaigns/view", JSON.stringify(data), updateClickSuccess, getUpdateError);
+            //רינדור לחלק הממומן
+            renderBusinessesFinance(arrFinanceByPre);
 
             return false;
         }
-        function updateViewSuccess(data) {
-            console.log("succeedUpdateView", data);           
+        function updateClickSuccess(data) {
+            console.log("succeedClickView", data);
         }
         function getUpdateError(err) {
             console.log(err.responseJSON);
@@ -320,22 +372,18 @@
 
     </div>
 
-    <div class="container-fluid">
+    <div id="Fina" class="container-fluid">
         <div id="phFinanced">
 
 
         </div>
     </div>
+    <hr class="dashed">
     <div class="container-fluid">
         <div id="ph">
 
 
         </div>
     </div>
-
-
-
-
-
 </body>
 </html>

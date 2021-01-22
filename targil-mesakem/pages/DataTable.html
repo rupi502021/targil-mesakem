@@ -117,7 +117,7 @@
                 Click: $("#click").val(),               
             }
             status = $("#active").is(":checked");
-            if (campAfterEdit.Income >= campAfterEdit.Investment || status == "false") {
+            if (Number(campAfterEdit.Income) >= Number(campAfterEdit.Investment) || status == "false") {
                 campAfterEdit = { ...campAfterEdit, Status: false };
             } else {
                 campAfterEdit = { ...campAfterEdit, Status: true };
