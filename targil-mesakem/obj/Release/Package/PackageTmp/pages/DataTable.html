@@ -1,0 +1,350 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+
+
+    <title>DataTable Example</title>
+
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css">
+
+    <style type="text/css">
+
+        button {
+            margin-left: 10px;
+        }
+    </style>
+
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+    <script src="../Scripts/ajaxCalls.js"></script>
+
+    <script>
+
+        // will run when the document is ready
+        $(document).ready(function () {
+            checkLogin();
+            // once the document is ready we fetch a list of camps from the server
+            ajaxCall("GET", "../api/Campaigns/camp", "", getSuccess, error);
+            $("#campForm").submit(onSubmitFunc); // wire the submit event to a function called f1
+            $("#editDiv").hide();
+            buttonEvents();
+        });
+
+        function checkLogin() {
+            var l = JSON.parse(localStorage.getItem('user_without_pre'));
+            var l1 = JSON.parse(localStorage.getItem('user_with_pre'));
+            if (l != null || l1 != null) {
+                $('.sign-up').hide();
+                $('.login').hide();
+                $('.logout').show();
+            }
+            else {
+                $('.sign-up').show();
+                $('.login').show();
+                $('.logout').hide();
+            }
+        }
+
+        // wire all the buttons to their functions
+        function buttonEvents() {
+
+
+            $(document).on("click", ".editBtn", function () {
+                markSelected(this);
+                $("#editDiv").show();
+                $("#editDiv :input").prop("disabled", "disabled"); // edit mode: enable all controls in the form
+                $("input#investment").prop("disabled", false);
+                $("input#active").prop("disabled", false);
+                $("button#saveBTN").prop("disabled", false);                
+                getCamp(this.getAttribute('data-campId')); // fill the form fields according to the selected row
+            });
+
+            $(document).on("click", ".viewBtn", function () {
+                markSelected(this);
+                $("#editDiv").show();
+                $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form
+                getCamp(this.getAttribute('data-campId'));
+            });
+
+            $(document).on("click", ".deleteBtn", function () {
+                markSelected(this);
+                var restaurantId = this.getAttribute('data-campId');
+                swal({ // this will open a dialouge
+                    title: "Are you sure ??",
+                    text: "",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true
+                })
+                    .then(function (willDelete) {
+                        if (willDelete) DeleteCamp(restaurantId);
+                        else swal("Not Deleted!");
+                    });
+            });
+        }
+
+        // mark the selected row
+        function markSelected(btn) {
+            $("#campsTable tr").removeClass("selected"); // remove seleced class from rows that were selected before
+            row = (btn.parentNode).parentNode; // button is in TD which is in Row
+            row.className = 'selected'; // mark as selected
+        }
+
+         //Delete a car from the server
+        function DeleteCamp(id) {
+            ajaxCall("DELETE", "../api/Campaigns/" + id, "", deleteSuccess, error);
+        }
+
+        function onSubmitFunc() {
+            let campAfterEdit = {
+                Id: $("#restaurantId").val(),
+                Investment: $("#investment").val(),
+                Income: $("#income").val(),
+                View: $("#view").val(),
+                Click: $("#click").val(),               
+            }
+            status = $("#active").is(":checked");
+            if (Number(campAfterEdit.Income) >= Number(campAfterEdit.Investment) || status == "false") {
+                campAfterEdit = { ...campAfterEdit, Status: false };
+            } else {
+                campAfterEdit = { ...campAfterEdit, Status: true };
+            }
+
+            console.log(campAfterEdit)
+        //    // update a new Camp record to the server
+            ajaxCall("PUT", "../api/Campaigns", JSON.stringify(campAfterEdit), updateSuccess, error);
+            return false;
+        }
+
+        
+        // get a camp according to its Id
+        function getCamp(rowId) {
+            rowIdafterchange = rowId;
+            ajaxCall("GET", "../api/Campaigns/camp", "", getSuccessview, error);
+          
+        }
+
+        function getSuccessview(campsdata) {
+            camps = campsdata;
+            for (i in camps) {
+                if (camps[i].Id == rowIdafterchange) {
+                    $("#restaurantId").val(camps[i].Id);
+                    $("#investment").val(camps[i].Investment);
+                    $("#income").val(camps[i].Income);
+                    $("#view").val(camps[i].View);
+                    $("#click").val(camps[i].Click);
+                    if (camps[i].Income >= camps[i].Investment) {
+                        $("#active").prop('false', camps[i].Status);
+                    }
+                    else {
+                        $("#active").prop('checked', camps[i].Status);
+                    }
+                }
+            }
+            return null;
+        }
+
+
+        // success callback function after update
+        function updateSuccess(campsdata) {
+            tbl.clear();
+            redrawTable(tbl, campsdata);
+            buttonEvents();
+            $("#editDiv").hide();
+            swal("Updated Successfuly!", "Great Job", "success");
+        }
+
+        // success callback function after delete
+        function deleteSuccess(campsdata) {
+            tbl.clear();
+            redrawTable(tbl, campsdata);
+            buttonEvents(); // after redrawing the table, we must wire the new buttons
+            $("#editDiv").hide();
+            swal("Deleted Successfuly!", "Great Job", "success");
+        }
+
+        // redraw a datatable with new data
+        function redrawTable(tbl, data) {
+            tbl.clear();
+            for (var i = 0; i < data.length; i++) {
+                tbl.row.add(data[i]);
+            }
+            tbl.draw();
+        }
+
+        // this function is activated in case of a success
+        function getSuccess(campsdata) {
+            console.log(campsdata);
+            camps = campsdata; // keep the camps array in a global variable;
+            try {
+                tbl = $('#campsTable').DataTable({
+                    data: campsdata,
+                    pageLength: 5,
+                    columns: [
+                        {
+                            render: function (data, type, row, meta) {
+                                let dataCamp = "data-campId='" + row.Id + "'";
+
+                                editBtn = "<button type='button' class = 'editBtn btn btn-success' " + dataCamp + "> Edit </button>";
+                                viewBtn = "<button type='button' class = 'viewBtn btn btn-info' " + dataCamp + "> View </button>";
+                                deleteBtn = "<button type='button' class = 'deleteBtn btn btn-danger' " + dataCamp + "> Delete </button>";
+                                return editBtn + viewBtn + deleteBtn;
+                            }
+                        },
+                        { data: "Id" },
+                        { data: "Investment" },
+                        { data: "Income" },
+                        { data: "View" },
+                        { data: "Click" },
+                        {
+                            data: "Status",
+                            render: function (data, type, row, meta) {
+                                if (data == true)
+                                    return '<input type="checkbox" checked disabled="disabled" />';
+                                else
+                                    return '<input type="checkbox" disabled="disabled"/>';
+                            }
+                        }
+                    ],
+                });
+               
+            }
+
+            catch (err) {
+                alert(err);
+            }
+        }
+
+        // this function is activated in case of a failure
+        function error(err) {
+            swal("Error: " + err);
+        }
+
+        function checkls() {
+            if (localStorage.getItem('user_with_pre') == null && localStorage.getItem('user_without_pre') == null) {
+                swal({
+                    title: "Wrong way!", text: "You need to sign up or login first!", icon:
+                        "error"
+                })
+            }
+            else {
+                window.location.href = "Preferences.html";
+            }
+        }
+        function logout() {
+            localStorage.removeItem('user_without_pre');
+            localStorage.removeItem('user_with_pre');
+        }
+    </script>
+
+</head>
+<body>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Yummy</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="index.html">Search your restaurant </a></li>
+                <li><a onclick="checkls()">Edit your preferences</a></li>
+                <li class="active"><a href="DataTable.html">Manager page </a></li>
+            </ul>
+            <ul id="login" class="nav navbar-nav navbar-right">
+                <li class="sign-up"><a href="customers.html"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                <li class="login"><a href="login.html"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                <li class="logout"><a href="" onclick="logout()"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="tab">
+        <a href="campaign.html" class="btn btn-primary">Go to Add more Campaigns</a>
+    </div>
+    <br />
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">All Campaigns</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <form id="pForm">
+            <table id="campsTable" class="display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Restaurant ID</th>
+                        <th>Investment</th>
+                        <th>Income</th>
+                        <th>Views</th>
+                        <th>Clicks</th>
+                        <th>Active</th>
+                    </tr>
+                </thead>
+            </table>
+
+        </form>
+
+        <div id="editDiv">
+            <form id="campForm">
+                <div class="form-group row">
+                    <div class="form-group col-sm-3">
+                        <label for="restaurantId"><span class="red-star">★ </span>RestaurantID</label>
+                        <input type="text" class="form-control" id="restaurantId" placeholder="Enter the restaurant ID" required>
+                    </div>
+
+
+                    <div class="form-group col-sm-3">
+                        <label for="investment"><span class="red-star">★ </span>Investment</label>
+                        <input type="text" class="form-control" id="investment" placeholder="Enter the investment amount" required>
+                    </div>
+
+
+                    <div class="form-group col-sm-3">
+                        <label for="income"><span class="red-star">★ </span>Income</label>
+                        <input type="text" class="form-control" id="income" placeholder="Enter the income amount" required>
+                    </div>
+
+                    <div class="form-group col-sm-3">
+                        <label for="view"><span class="red-star">★ </span>Views</label>
+                        <input type="number" class="form-control" id="view" placeholder="Enter the views" required />
+                    </div>
+
+                    <div class="form-group col-sm-3">
+                        <label for="click"><span class="red-star">★ </span>Clicks</label>
+                        <input type="number" class="form-control" id="click" placeholder="Enter the clicks" required />
+                    </div>
+
+                    <div class="form-group col-sm-3">
+                        <label for="active"><span class="red-star">★ </span>Active?</label>
+                        <input type="checkbox" class="form-control" id="active" checked />
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
+
+            </form>
+        </div>
+
+    </div>
+
+
+
+
+</body>
+</html>

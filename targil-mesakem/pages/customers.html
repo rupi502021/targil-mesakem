@@ -55,6 +55,7 @@
            
 
         }
+        //נשלח לקונטרולר את התמונה שהועלתה+שם פרטי+ שם משפחה+ תאריך העלה- שיהיה יוניקי
         function upload() {
             var data = new FormData();
             var files = $("#files").get(0).files;
@@ -66,7 +67,7 @@
                 data.append("name", customer.Fname + '_' + customer.Lname + '_' + Date.now()); // append what ever data you want to send along with the files. See how you extract it in the controller.
             }
            
-            // Ajax upload  
+            // Ajax upload (image)
             $.ajax({
                 type: "POST",
                 url: "../Api/FileUpload",
@@ -82,7 +83,7 @@
         function successfile(data) {
             customer = { ...customer, Image: data[0] };
 
-
+            //נעלה את כול הקסטיומר כולל תכונת התמונה
             console.log(JSON.stringify(customer));          
             ajaxCall("POST", "../api/Customers", JSON.stringify(customer), success, error);
 
@@ -112,9 +113,7 @@
                 $("#emailTB").val(''),
                 $("#phoneTB").val(''),
                 $("#passwordTB").val(''),
-                $("#files").val('');
-          
-               
+                $("#files").val('');              
         }
 
     </script>

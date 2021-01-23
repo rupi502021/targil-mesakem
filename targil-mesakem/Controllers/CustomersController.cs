@@ -57,13 +57,16 @@ namespace targil_mesakem.Controllers
             // POST api/<controller>
             public HttpResponseMessage Post([FromBody] Customers customer)
         {
+            //ברישום הראשוני נגיע לאלס
             try
             {
+                //להוסיף או לעדכן למשתמש העדפות
                 if (customer.Fname == null)
                 {
                     customer.InsertPreHigh();
                 }
                 else
+                //לאתחל משתמש חדש
                 {
                     customer.Insert();
                 }

@@ -87,7 +87,8 @@
             }
             let customer;
             for (var i = 0; i < d.length; i++) {
-                
+                //אל יבדוק אם משתמש בלי העדפות
+                //אל1 יעדכן העדפות למשתמש שכבר היו לו
                     if (l == d[i].Email || l1.Email == d[i].Email) {
                         var id = d[i].Id;
                         var email = d[i].Email;
@@ -128,6 +129,7 @@
         function error(err) {
             alert(err.responseJSON);
         }
+
         function checkLogin() {
             var l = JSON.parse(localStorage.getItem('user_without_pre'));
             var l1 = JSON.parse(localStorage.getItem('user_with_pre'));

@@ -1,0 +1,218 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="../Scripts/ajaxCallsWithKey.js"></script>
+    <script src="../Scripts/jquery-3.4.1.min.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+
+    <style>
+        #regForm {
+            background-color: #ffffff;
+            margin: 100px auto;
+            font-family: Raleway;
+            padding: 40px;
+            width: 70%;
+            min-width: 300px;
+            border-color: gray;
+            border-style: solid;
+            border-width: medium;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        input {
+            padding: 10px;
+            width: 100%;
+            font-size: 17px;
+            font-family: Raleway;
+            border: 1px solid #aaaaaa;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 17px;
+            font-family: Raleway;
+            cursor: pointer;
+        }
+        hr.dashed {
+            border-top: 3px dashed #bbb;
+        }
+        div#view_All {
+            position: fixed;
+            left: 15%;
+        }
+    </style>
+
+    <title>Campaign</title>
+
+    <script>
+        $(document).ready(function () {
+            console.log("ready!");
+            checkLogin();
+            getAllRest();         
+        });
+
+        function checkLogin() {
+            var l = JSON.parse(localStorage.getItem('user_without_pre'));
+            var l1 = JSON.parse(localStorage.getItem('user_with_pre'));
+            if (l != null || l1 != null) {
+                $('.sign-up').hide();
+                $('.login').hide();
+                $('.logout').show();
+            }
+            else {
+                $('.sign-up').show();
+                $('.login').show();
+                $('.logout').hide();
+            }
+        }
+
+     
+
+        function func1() {
+            let _investment = $("#investmentTB").val();
+            _id = $("#allRest option:selected").val();
+            if (_investment == 0 && _id != 0)
+                swal({
+                    title: "Wrong!", text: "You did not enter an initial investment amount!", icon:
+                        "error"
+                });
+            else if (_investment != 0 && _id == 0)
+                swal({
+                    title: "Wrong!", text: "You did not select a restaurant!", icon:
+                        "error"
+                });
+            else if (_investment == 0 && _id == 0)
+                swal({
+                    title: "Wrong!", text: "You did not enter any value!", icon:
+                        "error"
+                });
+            else {
+                campaign = {
+                    Id: _id,
+                    Investment: _investment,
+                    Income: 0,
+                    View: 0,
+                    Click: 0,
+                    Status: 1
+                }
+                console.log(JSON.stringify(campaign));
+                ajaxCall("POST", "../api/Campaigns", JSON.stringify(campaign), postSuccess, postError);
+            }
+            clear();
+        }
+        function postSuccess(data) {
+            swal({
+                title: "Success!", text: "The New campaign has been added", icon:
+                    "success"
+            })
+        }
+        function postError(err) {
+            alert(err.responseJSON);
+        }
+
+        function getAllRest() {
+            ajaxCall("GET", "../api/Businesses", "", getSuccessB, getErrorB);
+        }
+        function getSuccessB(data) {
+            console.log(data);
+            var d = data;
+            renderAll(d);
+        }
+        function getErrorB(err) {
+            console.log(err);
+        }
+        function renderAll(d) {
+            $("#ph1").html("");
+            let str = "";
+            str += "<select id='allRest'>";
+            str += "<option value='0'>select restaurant</option>";
+            for (var i = 0; i < d.length; i++) {
+                str += "<option value='" + d[i].Id + "'>" + d[i].Name + "</option>";
+            }
+            str += "</select>"
+            $("#ph1").append(str)
+        }
+
+        function checkls() {
+            if (localStorage.getItem('user_with_pre') == null && localStorage.getItem('user_without_pre') == null) {
+                swal({
+                    title: "Wrong way!", text: "You need to sign up or login first!", icon:
+                        "error"
+                })
+            }
+            else {
+                window.location.href = "Preferences.html";
+            }
+        }
+        function logout() {
+            localStorage.removeItem('user_without_pre');
+            localStorage.removeItem('user_with_pre');
+        }
+        function clear() {
+            $("#investmentTB").val("");
+            $("#allRest").val(0);
+        }
+
+    </script>
+
+
+</head>
+<body>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Yummy</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="index.html">Search your restaurant </a></li>
+                <li><a onclick="checkls()">Edit your preferences</a></li>
+                <li class="active"><a href="DataTable.html">Manager page </a></li>
+            </ul>
+            <ul id="login" class="nav navbar-nav navbar-right">
+                <li class="sign-up"><a href="customers.html"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                <li class="login"><a href="login.html"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                <li class="logout"><a href="" onclick="logout()"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div id="view_All">
+        <a href="DataTable.html" class="btn btn-primary">View All Campaigns</a>
+    </div>
+
+    <form id="regForm">
+        <div class="tab">
+            <h3>Restaurant</h3>
+            <section>
+                <label>Please select your restaurant:</label>
+                <p id="ph1"></p>
+            </section>
+        </div>
+        <hr class="dashed">
+        <div class="tab">
+            <h3>Investment</h3>
+            <label>Please enter your investment:</label>
+            <input type="number" id="investmentTB" placeholder="Enter your investment..." class="required">
+        </div>
+        <div style="float:right;">
+            <br />
+            <button type="button" id="investmentBTN" onclick="func1()">Submit</button>
+        </div>
+    </form>
+
+</body>
+</html>
