@@ -60,13 +60,11 @@
 
         // wire all the buttons to their functions
         function buttonEvents() {
-
-
             $(document).on("click", ".editBtn", function () {
                 markSelected(this);
                 $("#editDiv").show();
                 $("#editDiv :input").prop("disabled", "disabled"); // edit mode: enable all controls in the form
-                $("input#investment").prop("disabled", false);
+                $("input#investment").prop("disabled", false);//אפשרות לעריכה
                 $("input#active").prop("disabled", false);
                 $("button#saveBTN").prop("disabled", false);                
                 getCamp(this.getAttribute('data-campId')); // fill the form fields according to the selected row

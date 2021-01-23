@@ -58,7 +58,7 @@
 
         });
        
-        function checkLogin() {
+        function checkLogin() {//משנה בסרגל אם רואים או לא רואים
             var l = JSON.parse(localStorage.getItem('user_without_pre'));
             var l1 = JSON.parse(localStorage.getItem('user_with_pre'));
             if (l != null || l1 != null) {
@@ -93,14 +93,14 @@
 
         function getSuccess(data) {
             console.log("RestaurantByCusine",data);
-            d = cloneVariable(data);
+            d = cloneVariable(data);//משמיטים את המצביע בקריאה לדאטה דרך פונקציית עזר
             if (localStorage.getItem('user_with_pre') == null) {
                 str = "We found " + d.length + " results for you arranged from high to low rating";
                 swal({
                     title: "Yohoo!", text: str, icon:
                         "success"
                 })
-                d.sort(function (a, b) {
+                d.sort(function (a, b) {//מיון לפי הרייטינג הגבוהה כאשר אין למשתמש העדפות
                     return b.Rating - a.Rating;
                 });
                 
@@ -112,18 +112,18 @@
                 ajaxCall("GET", api, "", getSuccessPre, getError);
             }           
         }
-        function getSuccessCamp(data) {
+        function getSuccessCamp(data) {//d-מסעדות   data-מסעדה שיש לה קמפיין פעיל
             console.log("campByCusine", data);
-            arrRestOraganic = [];
-            for (var i = 0; i < d.length; i++) {
+            arrRestOraganic = [];//הורדת כפילויות בין כל המסעדות לבין המסעדות עם קמפיין פעיל
+            for (var i = 0; i < d.length; i++) {//רץ על כל המסעדות של אותו מטבח ללא קשר לקמפיין
                 var exist = false;
                 for (var j = 0; j < data.length; j++) {
                     if (d[i].Id == data[j].Id) {
                         exist = true;
-                        break;
+                        break;//יוצא מהפור הנוכחי מקדם את האיי
                     }
                 }
-                if (exist != true) {
+                if (exist != true) {//כל המסעדות שאין להן קמפיין
                     arrRestOraganic.push(d[i]);
                 }
             }          
@@ -132,16 +132,16 @@
             ajaxCall("PUT", "../api/Campaigns/view", JSON.stringify(data), updateViewSuccess, getUpdateError);
             renderBusinessesFinance(data);
 
-            return false;
+            //return false;
         }
         function updateViewSuccess(data) {
             console.log("succeedUpdateView", data);
         }
-        //dPre == דאטה שמתחיל בהעדפות ומוסיפים לו את שאר המסעדות מאותו קוזין
-        //d_withpre = מסעדות רלוונטיות למשתמש
+
+        //d_withpre = מסעדות רלוונטיות למשתמש עם עדיפויות
         function getSuccessPre(data) {
-            d_withPre = cloneVariable(data);
-            dPre = data;
+            d_withPre = cloneVariable(data);//מניפולציה על הדאטה - משחררים את המצביע
+            dPre = data;//מאתחלים את 'די-פרה' במסעדות במותאמות למשתמש
             
             str = "We found results for you arranged from your preferences";
             swal({
@@ -149,37 +149,38 @@
                     "success"
             })
                     
-            for (var i = 0; i < d.length; i++) {
+            for (var i = 0; i < d.length; i++) {//רצים על כל המסעדות מהמטבח המסוים שנבחר
                 var exist = false;
-                for (var j = 0; j < dPre.length; j++) {
+                for (var j = 0; j < dPre.length; j++) {//רצים על כל המסעדות שמותאמות למשתמש לפי סוג המטבח שנבחר
                     if (d[i].Id == dPre[j].Id) {
                         exist = true;
                         break;
                     }
                 }
                 if (exist != true) {
-                    dPre.push(d[i]);
-                }
+                    dPre.push(d[i]); //דאטה שמתחיל בהעדפות ומוסיפים לו את שאר המסעדות מאותו קוזין
+                }//'די-פרה' זאת התצוגה האורגנית של המסעדות של אותו מטבח
             }            
 
             ajaxCall("GET", "../api/Campaigns/cusine/" + _cusine, "", getSuccessCampPre, getError)
         }
 
-        function cloneVariable(original)
+        function cloneVariable(original)//לוקחים מצביע והופכים אותו לאובייקט
         {
-            var newInstance = JSON.parse(JSON.stringify(original));
+            var newInstance = JSON.parse(JSON.stringify(original));//העברה לסטרינג לשם יצירת אובייקט חדש
             return newInstance;
 
         }
         
-        function getSuccessCampPre(data) {
+        function getSuccessCampPre(data) {//חוזר רשימה של מסעדנות לפי מטבח שיש להן קמפיין פעיל
             console.log("campByCusinePre", data);
             arrFinanceByPre = [];
             //בודק לפי המסעדות הרלוונטיות למשתמש ומכניס לתחילת הרשימה
+            //d_withpre = מסעדות רלוונטיות למשתמש עם עדיפויות
             for (var i = 0; i < data.length; i++) {               
                 for (var j = 0; j < d_withPre.length; j++) {
                     if (data[i].Id == d_withPre[j].Id) {
-                        arrFinanceByPre.push(data[i]);
+                        arrFinanceByPre.push(data[i]);//מסעדות שיש להן קמפיין & מותאמות למשתמש לפי עדיפויות
                     }
                 }
             }   
@@ -193,10 +194,9 @@
                     }
                 }
                 if (exist != true) {
-                    arrFinanceByPre.push(data[i]);
+                    arrFinanceByPre.push(data[i]);//מוסיף את כל המסעדות ללא קמפיין לסוף המערך
                 }
             }       
-
 
             //רינדור לחלק התחתון האורגני
             arrRestOraganic = [];
@@ -218,8 +218,9 @@
             //רינדור לחלק הממומן
             renderBusinessesFinance(arrFinanceByPre);
 
-            return false;
+           // return false;
         }
+
         function updateClickSuccess(data) {
             console.log("succeedClickView", data);
         }
@@ -237,7 +238,7 @@
             ajaxCall("PUT", "../api/Campaigns/click", JSON.stringify(obj.id), updateClickSuccess, getUpdateClickError);
            
             window.location.href = url;
-            return false;
+            //return false;
         }
         function updateClickSuccess(data) {
             console.log("succeedUpdateClick", data);

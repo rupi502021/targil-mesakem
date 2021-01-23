@@ -25,6 +25,7 @@ namespace targil_mesakem.Models.DAL
         //{
         //    return businessesList;
         //}
+        //צעד 1
         public SqlDataAdapter da;
         public DataTable dt;
         private string a;
@@ -525,6 +526,7 @@ namespace targil_mesakem.Models.DAL
             {
                 con = connect("DBConnectionString"); // create a connection to the database using the connection String defined in the web config file
 
+                //מביא את המסעדות התואמות למשתמש לפי העדיפויות שלו
                 String selectSTR = "SELECT id_cus,[ResHigh_2021].id_highlight, [Restaurants_2021].price_range,[Restaurants_2021].id,[Restaurants_2021].name,[Restaurants_2021].rating,[Restaurants_2021].address,[Restaurants_2021].category,[Restaurants_2021].phones,[Restaurants_2021].photo_url FROM [PreHigh_2021] join [ResHigh_2021] ON PreHigh_2021.id_highlight = [ResHigh_2021].id_highlight join [Restaurants_2021] ON PreHigh_2021.price_range = [Restaurants_2021].price_range AND [Restaurants_2021].id = ResHigh_2021.id_res ORDER BY id_cus";
                 SqlCommand cmd = new SqlCommand(selectSTR, con);
 
@@ -546,7 +548,7 @@ namespace targil_mesakem.Models.DAL
                         b.Address = (string)dr["address"];
                         b.Phones = (string)dr["phones"];
 
-                        if (bList.Count == 0)
+                        if (bList.Count == 0)//הורדת כפילויות של מסעדות מתוך הטבלה הנוצרת באסקיואל
                         {
                             bList.Add(b);
                         }
@@ -702,6 +704,7 @@ namespace targil_mesakem.Models.DAL
                 con = connect("DBConnectionString");
 
                 // create a dataadaptor
+                //צעדים 2 + 3
                 da = new SqlDataAdapter("select * from Campaign_2021 order by [Campaign_2021].Investment desc", con);
 
                 // automatic build the commands
@@ -712,6 +715,7 @@ namespace targil_mesakem.Models.DAL
 
 
                 // Fill the Dataset
+                //צעד 4
                 da.Fill(ds);
 
                 // keep the table in a field

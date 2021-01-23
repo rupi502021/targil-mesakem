@@ -94,7 +94,7 @@ namespace targil_mesakem.Controllers
         }
         [HttpPut]
         [Route("api/Campaigns/view")]
-        public HttpResponseMessage Put([FromBody] List<Businesses> bList)
+        public HttpResponseMessage Put([FromBody] List<Businesses> bList)//מקבל רשימה של מסעדות שיש להן קמפיין פעיל
         {
             var num=0;
             Businesses business = new Businesses();
@@ -109,7 +109,7 @@ namespace targil_mesakem.Controllers
                     {
                         cList[j].View += 1;
                         cList[j].Income += 0.1;
-                        num += cList[j].Update();
+                        num += cList[j].Update();//סופר כמה רשומות התעדכנו
                         bListfiltered.Add(bList[i]);
                     }                      
                  }               

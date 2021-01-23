@@ -38,10 +38,10 @@ namespace targil_mesakem.Controllers
 
                 for (int i = 0; i < bList.Count; i++)
                 {
-                    var ctgry = bList[i].Category.Split(',');
+                    var ctgry = bList[i].Category.Split(',');//נהפך למערך במידה ויש יותר מקטגוריה אחת למסעדה
                     foreach (var item in ctgry)
                     {
-                        if (_cusine == item || (" " + _cusine) == item)
+                        if (_cusine == item || (" " + _cusine) == item)//בגלל הרווח שיש בטבלה של האסקיואל
                         {
                             bListfiltered.Add(bList[i]);
                         }
